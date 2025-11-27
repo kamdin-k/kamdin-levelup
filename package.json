@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "snapshot": "bash -lc 'LATEST=$(ls -t ~/Downloads/kamdin-level-up-export*.json 2>/dev/null | head -n1) && mkdir -p backups && cp \"$LATEST\" ./backups/kamdin-level-up-$(date +%Y%m%d-%H%M%S).json && git add backups && git commit -m \"Add data snapshot\" && git push'",
+    "electron": "VITE_ELECTRON=1 npm run build && electron .",
+    "dist": "VITE_ELECTRON=1 npm run build && CSC_IDENTITY_AUTO=false electron-builder --mac --arm64",
+    "distzip": "VITE_ELECTRON=1 npm run build && CSC_IDENTITY_AUTO=false electron-builder --mac zip --arm64"
   },
   "dependencies": {
     "react": "^19.1.1",
@@ -20,12 +24,40 @@
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
     "autoprefixer": "^10.4.21",
+    "electron": "^38.2.1",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.14",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "vite-plugin-pwa": "^1.0.3"
+  },
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "com.kamdin.levelup",
+    "productName": "Kamdin Level-Up",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "artifactName": "${productName}-${version}-mac-${arch}.${ext}"
+    },
+    "extraResources": [
+      {
+        "from": "dist",
+        "to": "dist",
+        "filter": [
+          "**/*",
+          "!mac-*",
+          "!*.dmg",
+          "!*.zip"
+        ]
+      }
+    ]
   }
 }
